@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"slices"
 	"time"
 )
@@ -25,8 +24,13 @@ type TrackerStorage interface {
 }
 
 func (t *Tracker) Add(description string, amount uint) (TrackerRecord, error) {
+	var nextId RecordId = 1
+	if len(t.records) > 0 {
+		nextId = t.records[len(t.records)-1].Id
+	}
+
 	record := TrackerRecord{
-		Id:          t.records[len(t.records)-1].Id,
+		Id:          nextId,
 		Description: description,
 		Amount:      amount,
 		CreatedAt:   time.Now(),
@@ -58,8 +62,30 @@ func (t *Tracker) Delete(id RecordId) error {
 const DoNotUpdateAmount = 0
 
 func (t *Tracker) Update(id RecordId, description string, amount uint) (TrackerRecord, error) {
-	// todo
-	return TrackerRecord{}, errors.New("not implemented yet")
+	var updatedRecord TrackerRecord
+	records := make([]TrackerRecord, 0, len(t.records))
+	for _, record := range records {
+		if record.Id == id {
+			if len(description) > 0 {
+				record.Description = description
+			}
+			if amount != DoNotUpdateAmount {
+				record.Amount = amount
+			}
+			updatedRecord = record
+			records = append(records, updatedRecord)
+		} else {
+			records = append(records, record)
+		}
+	}
+
+	err := t.storage.Save(records)
+	if err != nil {
+		return TrackerRecord{}, err
+	}
+	t.records = records
+
+	return updatedRecord, nil
 }
 
 func (t *Tracker) GetAll() []TrackerRecord {
@@ -67,16 +93,29 @@ func (t *Tracker) GetAll() []TrackerRecord {
 }
 
 func (t *Tracker) GetSummary() uint {
-	// todo
-	return 0
+	var sum uint = 0
+	for _, record := range t.records {
+		sum += record.Amount
+	}
+	return sum
 }
 
 func (t *Tracker) GetSummaryByMonth(month time.Month) uint {
-	// todo
-	return 0
+	var sum uint = 0
+	for _, record := range t.records {
+		if record.CreatedAt.Month() == month {
+			sum += record.Amount
+		}
+	}
+	return sum
 }
 
 func (t *Tracker) GetSummaryByYear(year int) uint {
-	// todo
-	return 0
+	var sum uint = 0
+	for _, record := range t.records {
+		if record.CreatedAt.Year() == year {
+			sum += record.Amount
+		}
+	}
+	return sum
 }
