@@ -19,10 +19,6 @@ type Tracker struct {
 	records []TrackerRecord
 }
 
-type TrackerStorage interface {
-	Save(records []TrackerRecord) error
-}
-
 func (t *Tracker) Add(description string, amount uint) (TrackerRecord, error) {
 	var nextId RecordId = 1
 	if len(t.records) > 0 {
