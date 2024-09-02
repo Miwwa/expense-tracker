@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"slices"
 	"time"
 )
@@ -17,6 +18,14 @@ type TrackerRecord struct {
 type Tracker struct {
 	storage TrackerStorage
 	records []TrackerRecord
+}
+
+func NewTracker(storage TrackerStorage) (*Tracker, error) {
+	records, err := storage.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	return &Tracker{storage: storage, records: records}, nil
 }
 
 func (t *Tracker) Add(description string, amount uint) (TrackerRecord, error) {
@@ -58,29 +67,26 @@ func (t *Tracker) Delete(id RecordId) error {
 const DoNotUpdateAmount = 0
 
 func (t *Tracker) Update(id RecordId, description string, amount uint) (TrackerRecord, error) {
-	var updatedRecord TrackerRecord
-	records := make([]TrackerRecord, 0, len(t.records))
-	for _, record := range records {
-		if record.Id == id {
-			if len(description) > 0 {
-				record.Description = description
-			}
-			if amount != DoNotUpdateAmount {
-				record.Amount = amount
-			}
-			updatedRecord = record
-			records = append(records, updatedRecord)
-		} else {
-			records = append(records, record)
-		}
+	indexFound := slices.IndexFunc(t.records, func(record TrackerRecord) bool {
+		return record.Id == id
+	})
+	if indexFound == -1 {
+		return TrackerRecord{}, errors.New("record not found")
 	}
 
-	err := t.storage.Save(records)
+	updatedRecord := t.records[indexFound]
+	if len(description) > 0 {
+		updatedRecord.Description = description
+	}
+	if amount != DoNotUpdateAmount {
+		updatedRecord.Amount = amount
+	}
+	t.records[indexFound] = updatedRecord
+
+	err := t.storage.Save(t.records)
 	if err != nil {
 		return TrackerRecord{}, err
 	}
-	t.records = records
-
 	return updatedRecord, nil
 }
 

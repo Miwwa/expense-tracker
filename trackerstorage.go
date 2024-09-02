@@ -1,6 +1,6 @@
 package main
 
 type TrackerStorage interface {
-	ReadAll() []TrackerRecord
+	ReadAll() ([]TrackerRecord, error)
 	Save(records []TrackerRecord) error
 }
