@@ -67,13 +67,33 @@ func TestCsvTrackerStorage_ReadAll(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "InvalidId",
+			content: "Id,CreatedAt,Amount,Description\n" +
+				"-1,2024-01-01T01:01:01Z,100,record1\n",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "InvalidDate",
+			content: "Id,CreatedAt,Amount,Description\n" +
+				"1,2024-01-01111T01:01:01Z,100,record1\n",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "InvalidAmount",
+			content: "Id,CreatedAt,Amount,Description\n" +
+				"1,2024-01-01T01:01:01Z,-125,record1\n",
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &CsvTrackerStorage{
 				filename: "trackerstorage_test.csv",
 			}
-			// Create a file with the defined content.
 			if err := os.WriteFile(s.filename, []byte(tt.content), 0666); err != nil {
 				t.Fatalf("Failed to create test file: %v", err)
 			}
