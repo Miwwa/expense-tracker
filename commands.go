@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 func HelpCmd() error {
@@ -113,4 +114,64 @@ func DeleteCmd(args []string, tracker *Tracker) error {
 	fmt.Printf("Record deleted successfully (ID: %d)", *id)
 
 	return nil
+}
+
+func ListCmd(_ []string, tracker *Tracker) error {
+	fmt.Println("ID\tDate\t\tDescription\t\tAmount")
+	for _, record := range tracker.GetAll() {
+		fmt.Printf("%d\t%s\t%s\t%d\n", record.Id, record.CreatedAt.Format(time.DateOnly), record.Description, record.Amount)
+	}
+	return nil
+}
+
+func SummaryCmd(args []string, tracker *Tracker) error {
+	summaryCmd := flag.NewFlagSet("summary", flag.ExitOnError)
+	summaryCmd.Usage = func() {
+		fmt.Fprint(summaryCmd.Output(), "Usage of summary:\nshow total expenses for all time, can set optional parameters to show total expenses for specified period\n")
+		summaryCmd.PrintDefaults()
+	}
+
+	month := summaryCmd.Int("month", int(time.Now().Month()), "show total expenses for the specified month (1-12)")
+	year := summaryCmd.Int("year", time.Now().Year(), "show total expenses for the specified month (1-12)")
+
+	err := summaryCmd.Parse(args)
+	if err != nil {
+		return err
+	}
+
+	if len(args) == 0 {
+		fmt.Printf("Total expenses: %d", tracker.GetSummary())
+		return nil
+	}
+
+	isMonthPassed := isFlagPassed(summaryCmd, "month")
+	isYearPassed := isFlagPassed(summaryCmd, "year")
+
+	if isMonthPassed && (*month < 1 || *month > 12) {
+		summaryCmd.Usage()
+		return errors.New("invalid month")
+	}
+	if isYearPassed && (*year < 1970 || *year > 9999) {
+		summaryCmd.Usage()
+		return errors.New("invalid year")
+	}
+
+	var sum uint
+	if isYearPassed && !isMonthPassed {
+		sum = tracker.GetSummaryByYear(*year)
+	} else {
+		sum = tracker.GetSummaryByMonth(time.Month(*month), *year)
+	}
+	fmt.Printf("Total expenses: %d", sum)
+	return nil
+}
+
+func isFlagPassed(flags *flag.FlagSet, name string) bool {
+	found := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
 }

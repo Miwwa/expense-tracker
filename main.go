@@ -33,6 +33,10 @@ func Run(args []string) error {
 		return UpdateCmd(args[1:], tracker)
 	case "delete":
 		return DeleteCmd(args[1:], tracker)
+	case "list":
+		return ListCmd(args[1:], tracker)
+	case "summary":
+		return SummaryCmd(args[1:], tracker)
 	default:
 		return HelpCmd()
 	}
