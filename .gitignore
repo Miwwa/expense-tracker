@@ -31,3 +31,5 @@ Thumbs.db
 *.cover
 *.tmp
 *.swap
+
+expenses.csv

@@ -1,20 +1,49 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"flag"
+	"fmt"
+	"os"
+)
 
-type CmdError struct {
-	message string
-	usage   string
+func HelpCmd() error {
+	fmt.Println(HelpText)
+	return nil
 }
 
-func (e *CmdError) Error() string {
-	return fmt.Sprintf("%s\nUsage: task-cli %s", e.message, e.usage)
-}
+func AddCmd(args []string, tracker *Tracker) error {
+	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
+	addCmd.Usage = func() {
+		fmt.Fprint(addCmd.Output(), "Usage of add:\nadd a new record to the tracker\n")
+		addCmd.PrintDefaults()
+	}
 
-func InvalidUsageError(usage string) error {
-	return &CmdError{message: "invalid arguments", usage: usage}
-}
+	description := addCmd.String("description", "", "text description, required")
+	amount := addCmd.Uint("amount", 0, "money amount, required, must be more than 0")
 
-func HelpCmd() (string, error) {
-	return HelpText, nil
+	err := addCmd.Parse(args)
+	if err != nil {
+		return err
+	}
+
+	if *amount == 0 {
+		addCmd.Usage()
+		return errors.New("invalid amount")
+	}
+
+	if *description == "" {
+		addCmd.Usage()
+		return errors.New("invalid description")
+	}
+
+	record, err := tracker.Add(*description, *amount)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error adding record: %v\n", err)
+		return err
+	}
+
+	fmt.Printf("Expense added successfully (ID: %d)", record.Id)
+
+	return nil
 }

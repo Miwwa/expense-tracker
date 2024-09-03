@@ -6,21 +6,29 @@ import (
 )
 
 func main() {
-	output, err := Run(os.Args[1:])
+	err := Run(os.Args[1:])
 	if err != nil {
-		_, err := fmt.Fprintln(os.Stderr, err)
-		if err != nil {
-			return
-		}
-		os.Exit(1)
+		os.Exit(2)
 	}
-	println(output)
 }
 
-func Run(args []string) (string, error) {
+func Run(args []string) error {
 	if len(args) == 0 {
 		return HelpCmd()
 	}
 
-	return "", nil
+	storage := &CsvTrackerStorage{filename: "./expenses.csv"}
+	tracker, err := NewTracker(storage)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating tracker: %v\n", err)
+		return err
+	}
+
+	switch args[0] {
+	case "help", "-h", "--help":
+		return HelpCmd()
+	case "add":
+		return AddCmd(args[1:], tracker)
+	}
+	return nil
 }
