@@ -36,7 +36,7 @@ func NewTracker(storage TrackerStorage) (*Tracker, error) {
 func (t *Tracker) Add(description string, amount uint) (TrackerRecord, error) {
 	var nextId RecordId = 1
 	if len(t.records) > 0 {
-		nextId = t.records[len(t.records)-1].Id
+		nextId = t.records[len(t.records)-1].Id + 1
 	}
 
 	record := TrackerRecord{

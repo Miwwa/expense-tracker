@@ -136,6 +136,18 @@ func TestTrackerAdd(t *testing.T) {
 					t.Errorf("Got record %v, expected description '%s' and amount %d", record, test.description, test.amount)
 				}
 			}
+
+			// Check for duplicated ids in tracker.records
+			idMap := make(map[RecordId]bool)
+			for _, record := range tracker.records {
+				if idMap[record.Id] {
+					t.Errorf("Duplicate record id found: %v", record.Id)
+
+				} else {
+					idMap[record.Id] = true
+
+				}
+			}
 		})
 	}
 }
