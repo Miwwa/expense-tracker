@@ -379,9 +379,9 @@ func TestTrackerGetSummaryByMonth(t *testing.T) {
 			month: time.January,
 			data: []TrackerRecord{
 				{Amount: 100, CreatedAt: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)},
-				{Amount: 200, CreatedAt: time.Date(2024, time.January, 2, 0, 0, 0, 0, time.UTC)},
-				{Amount: 300, CreatedAt: time.Date(2024, time.February, 1, 0, 0, 0, 0, time.UTC)}},
-			want: 300,
+				{Amount: 200, CreatedAt: time.Date(2024, time.February, 2, 0, 0, 0, 0, time.UTC)},
+				{Amount: 300, CreatedAt: time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)}},
+			want: 100,
 		},
 	}
 
@@ -389,7 +389,7 @@ func TestTrackerGetSummaryByMonth(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			storage := &FakeStorage{records: tt.data}
 			tracker, _ := NewTracker(storage)
-			if got := tracker.GetSummaryByMonth(tt.month); got != tt.want {
+			if got := tracker.GetSummaryByMonth(tt.month, 2024); got != tt.want {
 				t.Errorf("Tracker.GetSummaryByMonth() = %v, want %v", got, tt.want)
 			}
 		})

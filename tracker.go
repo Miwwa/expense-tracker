@@ -105,10 +105,10 @@ func (t *Tracker) GetSummary() uint {
 	return sum
 }
 
-func (t *Tracker) GetSummaryByMonth(month time.Month) uint {
+func (t *Tracker) GetSummaryByMonth(month time.Month, year int) uint {
 	var sum uint = 0
 	for _, record := range t.records {
-		if record.CreatedAt.Month() == month {
+		if record.CreatedAt.Year() == year && record.CreatedAt.Month() == month {
 			sum += record.Amount
 		}
 	}
