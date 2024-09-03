@@ -8,7 +8,7 @@ import (
 )
 
 func HelpCmd() error {
-	fmt.Println(HelpText)
+	fmt.Print(HelpText)
 	return nil
 }
 

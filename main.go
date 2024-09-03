@@ -17,7 +17,7 @@ func Run(args []string) error {
 		return HelpCmd()
 	}
 
-	storage := &CsvTrackerStorage{filename: "./expenses.csv"}
+	storage := NewStorageFromFile("./expenses.csv")
 	tracker, err := NewTracker(storage)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating tracker: %v\n", err)

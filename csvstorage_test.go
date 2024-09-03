@@ -155,7 +155,7 @@ func TestCsvTrackerStorage_Save(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := FromFile("trackerstorage_test.csv")
+			s := NewStorageFromFile("trackerstorage_test.csv")
 			// Clean up the file after each test.
 			defer os.Remove(s.filename)
 

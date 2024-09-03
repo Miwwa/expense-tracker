@@ -17,7 +17,7 @@ type CsvTrackerStorage struct {
 	filename string
 }
 
-func FromFile(filename string) *CsvTrackerStorage {
+func NewStorageFromFile(filename string) *CsvTrackerStorage {
 	return &CsvTrackerStorage{filename: filename}
 }
 
