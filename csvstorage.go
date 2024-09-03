@@ -53,14 +53,19 @@ func (s *CsvTrackerStorage) ReadAll() ([]TrackerRecord, error) {
 }
 
 func (s *CsvTrackerStorage) Save(records []TrackerRecord) error {
-	file, err := os.OpenFile(s.filename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(s.filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-
 	writer := csv.NewWriter(file)
-	defer writer.Flush()
+
+	defer func() {
+		writer.Flush()
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	headers := []string{"Id", "CreatedAt", "Amount", "Description"}
 	err = writer.Write(headers)
