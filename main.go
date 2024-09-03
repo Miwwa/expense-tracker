@@ -29,6 +29,11 @@ func Run(args []string) error {
 		return HelpCmd()
 	case "add":
 		return AddCmd(args[1:], tracker)
+	case "update":
+		return UpdateCmd(args[1:], tracker)
+	case "delete":
+		return DeleteCmd(args[1:], tracker)
+	default:
+		return HelpCmd()
 	}
-	return nil
 }

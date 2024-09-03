@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	InvalidId         = 0
+	DoNotUpdateAmount = 0
+)
+
 type RecordId uint
 
 type TrackerRecord struct {
@@ -63,8 +68,6 @@ func (t *Tracker) Delete(id RecordId) error {
 
 	return nil
 }
-
-const DoNotUpdateAmount = 0
 
 func (t *Tracker) Update(id RecordId, description string, amount uint) (TrackerRecord, error) {
 	indexFound := slices.IndexFunc(t.records, func(record TrackerRecord) bool {
